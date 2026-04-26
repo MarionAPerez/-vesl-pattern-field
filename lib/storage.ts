@@ -3,7 +3,36 @@ import { DayPattern, Moment } from "./types";
 const STORAGE_PREFIX = "vesl_";
 
 export function getDateKey(date: Date = new Date()): string {
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function getTodayKey(): string {
+  return getDateKey(new Date());
+}
+
+export function getAllSavedDays(): string[] {
+  if (typeof window === "undefined") return [];
+
+  const days: string[] = [];
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith(STORAGE_PREFIX)) {
+      const dateKey = key.replace(STORAGE_PREFIX, "");
+      if (datePattern.test(dateKey)) {
+        const pattern = loadDay(dateKey);
+        if (pattern.moments.length > 0) {
+          days.push(dateKey);
+        }
+      }
+    }
+  }
+
+  return days.sort((a, b) => b.localeCompare(a)); // Most recent first
 }
 
 export function loadDay(dateKey: string): DayPattern {
