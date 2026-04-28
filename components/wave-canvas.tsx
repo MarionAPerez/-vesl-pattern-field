@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import { DayPattern, Moment, TONE_COLORS } from "@/lib/types";
+import { DayPattern, Moment, TONE_COLORS, TIME_PERIOD_POSITIONS, TIME_PERIOD_LABELS, TimePeriod } from "@/lib/types";
 
 interface WaveCanvasProps {
   patterns: DayPattern[];
@@ -17,10 +17,8 @@ interface Point {
   time: string;
 }
 
-function timeToX(time: string, width: number, padding: number = 40): number {
-  const [hours, minutes] = time.split(":").map(Number);
-  const totalMinutes = hours * 60 + minutes;
-  const ratio = totalMinutes / (24 * 60);
+function timeToX(time: TimePeriod, width: number, padding: number = 40): number {
+  const ratio = TIME_PERIOD_POSITIONS[time];
   return padding + ratio * (width - padding * 2);
 }
 
@@ -172,14 +170,14 @@ export function WaveCanvas({ patterns, isFieldView = false, className = "" }: Wa
     ctx.lineTo(width - 40, height / 2);
     ctx.stroke();
     
-    // Time markers
+    // Time period markers
     ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
     ctx.font = "10px -apple-system, sans-serif";
     ctx.textAlign = "center";
     
-    ["00:00", "06:00", "12:00", "18:00", "24:00"].forEach((time, i) => {
-      const x = timeToX(time === "24:00" ? "23:59" : time, width);
-      ctx.fillText(time === "24:00" ? "" : time, x, height - 15);
+    (["morning", "midday", "afternoon", "night"] as TimePeriod[]).forEach((period) => {
+      const x = timeToX(period, width);
+      ctx.fillText(TIME_PERIOD_LABELS[period], x, height - 15);
     });
     ctx.restore();
 

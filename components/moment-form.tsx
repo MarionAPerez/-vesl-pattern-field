@@ -3,13 +3,20 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { Moment } from "@/lib/types";
+import { Moment, TimePeriod, TIME_PERIOD_LABELS } from "@/lib/types";
 
 interface MomentFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (moment: Omit<Moment, "id" | "createdAt">) => void;
 }
+
+const TIME_PERIODS: { value: TimePeriod; label: string }[] = [
+  { value: "morning", label: TIME_PERIOD_LABELS.morning },
+  { value: "midday", label: TIME_PERIOD_LABELS.midday },
+  { value: "afternoon", label: TIME_PERIOD_LABELS.afternoon },
+  { value: "night", label: TIME_PERIOD_LABELS.night },
+];
 
 const TONES: { value: Moment["tone"]; label: string; icon: string }[] = [
   { value: "energized", label: "Energized", icon: "●" },
@@ -19,18 +26,23 @@ const TONES: { value: Moment["tone"]; label: string; icon: string }[] = [
   { value: "heavy", label: "Heavy", icon: "◌" },
 ];
 
-export function MomentForm({ isOpen, onClose, onSubmit }: MomentFormProps) {
-  const now = new Date();
-  const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+function getCurrentTimePeriod(): TimePeriod {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return "morning";
+  if (hour >= 12 && hour < 14) return "midday";
+  if (hour >= 14 && hour < 18) return "afternoon";
+  return "night";
+}
 
-  const [time, setTime] = useState(currentTime);
+export function MomentForm({ isOpen, onClose, onSubmit }: MomentFormProps) {
+  const [time, setTime] = useState<TimePeriod>(getCurrentTimePeriod);
   const [tone, setTone] = useState<Moment["tone"]>("grounded");
   const [energy, setEnergy] = useState(3);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({ time, tone, energy });
-    setTime(currentTime);
+    setTime(getCurrentTimePeriod());
     setTone("grounded");
     setEnergy(3);
     onClose();
@@ -74,17 +86,27 @@ export function MomentForm({ isOpen, onClose, onSubmit }: MomentFormProps) {
                 Add Moment
               </h2>
 
-              {/* Time Input */}
+              {/* Time Period Selection */}
               <div className="mb-6">
-                <label className="block text-xs text-white/40 uppercase tracking-wider mb-2">
+                <label className="block text-xs text-white/40 uppercase tracking-wider mb-3">
                   Time
                 </label>
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="w-full bg-transparent border border-white/10 rounded-lg px-4 py-3 text-white text-lg focus:outline-none focus:border-white/30 transition-colors"
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  {TIME_PERIODS.map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setTime(t.value)}
+                      className={`px-3 py-2.5 rounded-lg border transition-all text-sm ${
+                        time === t.value
+                          ? "border-white/40 bg-white/10 text-white"
+                          : "border-white/10 text-white/50 hover:border-white/20 hover:text-white/70"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Tone Selection */}

@@ -1,10 +1,27 @@
+export type TimePeriod = "morning" | "midday" | "afternoon" | "night";
+
 export interface Moment {
   id: string;
-  time: string; // HH:MM format
+  time: TimePeriod;
   tone: "energized" | "clear" | "grounded" | "restless" | "heavy";
   energy: number; // 1-5
   createdAt: number;
 }
+
+// Map time periods to positions (0-1 range for canvas positioning)
+export const TIME_PERIOD_POSITIONS: Record<TimePeriod, number> = {
+  morning: 0.15,    // ~6am
+  midday: 0.4,      // ~12pm
+  afternoon: 0.6,   // ~3pm
+  night: 0.85,      // ~9pm
+};
+
+export const TIME_PERIOD_LABELS: Record<TimePeriod, string> = {
+  morning: "Morning",
+  midday: "Midday",
+  afternoon: "Afternoon",
+  night: "Night",
+};
 
 export interface DayPattern {
   date: string; // YYYY-MM-DD

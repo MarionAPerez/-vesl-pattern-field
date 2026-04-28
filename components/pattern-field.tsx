@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Lock, Layers, RotateCcw, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { WaveCanvas } from "./wave-canvas";
 import { MomentForm } from "./moment-form";
-import { DayPattern, Moment, ViewMode } from "@/lib/types";
+import { DayPattern, Moment, ViewMode, TIME_PERIOD_LABELS } from "@/lib/types";
 import {
   getTodayKey,
   loadDay,
@@ -318,7 +318,7 @@ export function PatternField() {
               <div
                 key={m.id}
                 className="w-1.5 h-1.5 rounded-full bg-white/30"
-                title={`${m.time} - ${m.tone} (${m.energy})`}
+                title={`${TIME_PERIOD_LABELS[m.time]} - ${m.tone} (${m.energy})`}
               />
             ))}
           </div>
