@@ -12,11 +12,11 @@ interface MomentFormProps {
 }
 
 const TONES: { value: Moment["tone"]; label: string; icon: string }[] = [
-  { value: "calm", label: "Calm", icon: "○" },
-  { value: "focused", label: "Focused", icon: "◉" },
-  { value: "neutral", label: "Neutral", icon: "◌" },
-  { value: "anxious", label: "Anxious", icon: "◎" },
   { value: "energized", label: "Energized", icon: "●" },
+  { value: "clear", label: "Clear", icon: "◉" },
+  { value: "grounded", label: "Grounded", icon: "○" },
+  { value: "restless", label: "Restless", icon: "◎" },
+  { value: "heavy", label: "Heavy", icon: "◌" },
 ];
 
 export function MomentForm({ isOpen, onClose, onSubmit }: MomentFormProps) {
@@ -24,14 +24,14 @@ export function MomentForm({ isOpen, onClose, onSubmit }: MomentFormProps) {
   const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
 
   const [time, setTime] = useState(currentTime);
-  const [tone, setTone] = useState<Moment["tone"]>("neutral");
+  const [tone, setTone] = useState<Moment["tone"]>("grounded");
   const [energy, setEnergy] = useState(3);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({ time, tone, energy });
     setTime(currentTime);
-    setTone("neutral");
+    setTone("grounded");
     setEnergy(3);
     onClose();
   };
