@@ -318,7 +318,7 @@ export function PatternField() {
               <div
                 key={m.id}
                 className="w-1.5 h-1.5 rounded-full bg-white/30"
-                title={`${TIME_PERIOD_LABELS[m.time]} - ${m.tone} (${m.energy})`}
+                title={`${TIME_PERIOD_LABELS[m.time]} - ${m.tone}`}
               />
             ))}
           </div>

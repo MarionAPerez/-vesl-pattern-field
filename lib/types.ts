@@ -4,7 +4,6 @@ export interface Moment {
   id: string;
   time: TimePeriod;
   tone: "energized" | "clear" | "grounded" | "restless" | "heavy";
-  energy: number; // 1-5
   createdAt: number;
 }
 
@@ -39,12 +38,12 @@ export const TONE_COLORS: Record<Moment["tone"], string> = {
   heavy: "rgba(140, 140, 160, 0.6)",       // muted slate - low negative
 };
 
-// Tone valence values: positive tones push up, negative push down
-// Range: -1 (most negative) to +1 (most positive)
+// Tone valence values: determines Y position on the wave
+// Range: -1 (bottom) to +1 (top)
 export const TONE_VALENCE: Record<Moment["tone"], number> = {
-  energized: 0.8,    // high positive
-  clear: 0.5,        // mid positive  
-  grounded: 0.2,     // stable/neutral positive
-  restless: -0.4,    // mid negative
-  heavy: -0.8,       // low negative
+  energized: 1.0,    // top - high positive
+  clear: 0.5,        // upper mid - positive  
+  grounded: 0.0,     // center - neutral/stable
+  restless: -0.5,    // lower mid - negative
+  heavy: -1.0,       // bottom - low negative
 };

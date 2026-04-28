@@ -13,8 +13,7 @@ interface Point {
   x: number;
   y: number;
   tone: Moment["tone"];
-  energy: number;
-  time: string;
+  time: TimePeriod;
 }
 
 function timeToX(time: TimePeriod, width: number, padding: number = 40): number {
@@ -22,21 +21,15 @@ function timeToX(time: TimePeriod, width: number, padding: number = 40): number 
   return padding + ratio * (width - padding * 2);
 }
 
-function momentToY(energy: number, tone: Moment["tone"], height: number, padding: number = 60): number {
+function toneToY(tone: Moment["tone"], height: number, padding: number = 60): number {
   const centerY = height / 2;
   const amplitude = (height - padding * 2) / 2;
   
-  // Normalize energy: 1-5 maps to -1 to 1
-  const normalizedEnergy = (energy - 3) / 2;
-  
   // Get tone valence: -1 to 1
-  const toneValence = TONE_VALENCE[tone];
-  
-  // Combine: energy contributes 60%, tone contributes 40%
-  const combined = (normalizedEnergy * 0.6) + (toneValence * 0.4);
+  const valence = TONE_VALENCE[tone];
   
   // Map to Y position (negative Y = up on canvas)
-  return centerY - combined * amplitude * 0.8;
+  return centerY - valence * amplitude * 0.75;
 }
 
 function drawSmoothCurve(
@@ -105,7 +98,7 @@ function drawNodes(
   time: number = 0
 ) {
   points.forEach((point, i) => {
-    const baseRadius = 4 + point.energy * 0.5;
+    const baseRadius = 5;
     const pulseRadius = animate ? baseRadius + Math.sin(time * 0.003 + i) * 1.5 : baseRadius;
     
     // Outer glow
@@ -196,9 +189,8 @@ export function WaveCanvas({ patterns, isFieldView = false, className = "" }: Wa
         const opacity = 0.2 + (patternIndex / Math.max(patterns.length - 1, 1)) * 0.6;
         const points: Point[] = pattern.moments.map((m) => ({
           x: timeToX(m.time, width),
-          y: momentToY(m.energy, m.tone, height),
+          y: toneToY(m.tone, height),
           tone: m.tone,
-          energy: m.energy,
           time: m.time,
         }));
 
@@ -211,9 +203,8 @@ export function WaveCanvas({ patterns, isFieldView = false, className = "" }: Wa
       if (todayPattern && todayPattern.moments.length > 0) {
         const points: Point[] = todayPattern.moments.map((m) => ({
           x: timeToX(m.time, width),
-          y: momentToY(m.energy, m.tone, height),
+          y: toneToY(m.tone, height),
           tone: m.tone,
-          energy: m.energy,
           time: m.time,
         }));
 

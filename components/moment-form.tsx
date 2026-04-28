@@ -37,14 +37,12 @@ function getCurrentTimePeriod(): TimePeriod {
 export function MomentForm({ isOpen, onClose, onSubmit }: MomentFormProps) {
   const [time, setTime] = useState<TimePeriod>(getCurrentTimePeriod);
   const [tone, setTone] = useState<Moment["tone"]>("grounded");
-  const [energy, setEnergy] = useState(3);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ time, tone, energy });
+    onSubmit({ time, tone });
     setTime(getCurrentTimePeriod());
     setTone("grounded");
-    setEnergy(3);
     onClose();
   };
 
@@ -110,7 +108,7 @@ export function MomentForm({ isOpen, onClose, onSubmit }: MomentFormProps) {
               </div>
 
               {/* Tone Selection */}
-              <div className="mb-6">
+              <div className="mb-8">
                 <label className="block text-xs text-white/40 uppercase tracking-wider mb-3">
                   Tone
                 </label>
@@ -129,31 +127,6 @@ export function MomentForm({ isOpen, onClose, onSubmit }: MomentFormProps) {
                       <span className="mr-1">{t.icon}</span> {t.label}
                     </button>
                   ))}
-                </div>
-              </div>
-
-              {/* Energy Level */}
-              <div className="mb-8">
-                <label className="block text-xs text-white/40 uppercase tracking-wider mb-3">
-                  Energy Level
-                </label>
-                <div className="flex items-center gap-4">
-                  <span className="text-xs text-white/30">Low</span>
-                  <div className="flex-1 flex gap-2">
-                    {[1, 2, 3, 4, 5].map((level) => (
-                      <button
-                        key={level}
-                        type="button"
-                        onClick={() => setEnergy(level)}
-                        className={`flex-1 h-10 rounded-lg border transition-all ${
-                          energy >= level
-                            ? "border-white/40 bg-white/20"
-                            : "border-white/10 hover:border-white/20"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-xs text-white/30">High</span>
                 </div>
               </div>
 
