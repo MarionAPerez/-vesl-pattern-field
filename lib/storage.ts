@@ -1,6 +1,84 @@
 import { DayPattern, Moment } from "./types";
 
 const STORAGE_PREFIX = "vesl_";
+const MIGRATION_KEY = "vesl_migrated_v1";
+
+// Migrate old UTC-based date keys to local date keys
+export function migrateOldData(): void {
+  if (typeof window === "undefined") return;
+  
+  // Only run migration once
+  if (localStorage.getItem(MIGRATION_KEY)) return;
+  
+  const keysToMigrate: { oldKey: string; newKey: string; data: DayPattern }[] = [];
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+  
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith(STORAGE_PREFIX)) {
+      const dateKey = key.replace(STORAGE_PREFIX, "");
+      if (datePattern.test(dateKey)) {
+        try {
+          const data = JSON.parse(localStorage.getItem(key) || "");
+          if (data && data.moments && data.moments.length > 0) {
+            // Check if any moment has a createdAt timestamp we can use
+            // to determine the correct local date
+            const firstMoment = data.moments[0];
+            if (firstMoment.createdAt) {
+              const localDate = new Date(firstMoment.createdAt);
+              const localKey = getDateKey(localDate);
+              
+              // If the key differs, we need to migrate
+              if (localKey !== dateKey) {
+                data.date = localKey;
+                keysToMigrate.push({
+                  oldKey: key,
+                  newKey: STORAGE_PREFIX + localKey,
+                  data: data
+                });
+              }
+            }
+          }
+        } catch {
+          // Skip invalid data
+        }
+      }
+    }
+  }
+  
+  // Perform migration
+  for (const { oldKey, newKey, data } of keysToMigrate) {
+    // Check if destination already has data
+    const existing = localStorage.getItem(newKey);
+    if (existing) {
+      try {
+        const existingData = JSON.parse(existing);
+        // Merge moments if both have data
+        if (existingData.moments && data.moments) {
+          const existingIds = new Set(existingData.moments.map((m: Moment) => m.id));
+          for (const moment of data.moments) {
+            if (!existingIds.has(moment.id)) {
+              existingData.moments.push(moment);
+            }
+          }
+          existingData.moments.sort((a: Moment, b: Moment) => a.time.localeCompare(b.time));
+          existingData.sealed = existingData.sealed || data.sealed;
+          localStorage.setItem(newKey, JSON.stringify(existingData));
+        }
+      } catch {
+        // If merge fails, just save the new data
+        localStorage.setItem(newKey, JSON.stringify(data));
+      }
+    } else {
+      localStorage.setItem(newKey, JSON.stringify(data));
+    }
+    // Remove old key
+    localStorage.removeItem(oldKey);
+  }
+  
+  // Mark migration as complete
+  localStorage.setItem(MIGRATION_KEY, "true");
+}
 
 export function getDateKey(date: Date = new Date()): string {
   const year = date.getFullYear();

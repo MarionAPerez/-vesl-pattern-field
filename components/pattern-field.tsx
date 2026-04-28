@@ -14,6 +14,7 @@ import {
   getAllSealedDays,
   getAllSavedDays,
   clearAllData,
+  migrateOldData,
 } from "@/lib/storage";
 
 export function PatternField() {
@@ -50,6 +51,8 @@ export function PatternField() {
   }, [selectedDate]);
 
   useEffect(() => {
+    // Migrate any old data from UTC-based keys to local date keys
+    migrateOldData();
     refreshData();
     setIsLoaded(true);
   }, [refreshData]);
