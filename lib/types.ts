@@ -38,3 +38,13 @@ export const TONE_COLORS: Record<Moment["tone"], string> = {
   restless: "rgba(255, 150, 130, 0.8)",    // soft coral - high negative
   heavy: "rgba(140, 140, 160, 0.6)",       // muted slate - low negative
 };
+
+// Tone valence values: positive tones push up, negative push down
+// Range: -1 (most negative) to +1 (most positive)
+export const TONE_VALENCE: Record<Moment["tone"], number> = {
+  energized: 0.8,    // high positive
+  clear: 0.5,        // mid positive  
+  grounded: 0.2,     // stable/neutral positive
+  restless: -0.4,    // mid negative
+  heavy: -0.8,       // low negative
+};

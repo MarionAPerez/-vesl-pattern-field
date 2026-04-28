@@ -134,18 +134,34 @@ export function saveDay(pattern: DayPattern): void {
   localStorage.setItem(STORAGE_PREFIX + pattern.date, JSON.stringify(pattern));
 }
 
+const TIME_PERIOD_ORDER = ["morning", "midday", "afternoon", "night"];
+
 export function addMoment(dateKey: string, moment: Omit<Moment, "id" | "createdAt">): DayPattern {
   const pattern = loadDay(dateKey);
   if (pattern.sealed) return pattern;
 
+  // Check if moment for this time period already exists - replace it
+  const existingIndex = pattern.moments.findIndex((m) => m.time === moment.time);
+  
   const newMoment: Moment = {
     ...moment,
     id: crypto.randomUUID(),
     createdAt: Date.now(),
   };
 
-  pattern.moments.push(newMoment);
-  pattern.moments.sort((a, b) => a.time.localeCompare(b.time));
+  if (existingIndex !== -1) {
+    // Replace existing moment for this time period
+    pattern.moments[existingIndex] = newMoment;
+  } else {
+    // Add new moment (max 4 - one per time period)
+    pattern.moments.push(newMoment);
+  }
+  
+  // Sort by time period order
+  pattern.moments.sort((a, b) => 
+    TIME_PERIOD_ORDER.indexOf(a.time) - TIME_PERIOD_ORDER.indexOf(b.time)
+  );
+  
   saveDay(pattern);
   return pattern;
 }
